@@ -47,10 +47,9 @@ const Profile = () => {
 
   const handleSave = (field) => {
     if (field === "language") {
-      const newLang = formData.language;
-      localStorage.setItem("app_language", newLang);
-      i18n.changeLanguage(newLang);
-      window.dispatchEvent(new CustomEvent("languageChange", { detail: { language: newLang } }));
+      // i18n.changeLanguage already handles localStorage persistence
+      // and dispatches the languageChange event internally
+      i18n.changeLanguage(formData.language);
     }
     setIsEditing(prev => ({ ...prev, [field]: false }));
   };
@@ -81,18 +80,37 @@ const Profile = () => {
           {fieldRow('email', 'email')}
           {fieldRow('phone', 'tel')}
 
-          {/* Language - displays current language name, not editable */}
+          {/* Language - with Edit/Save button and dropdown when editing */}
           <div className="flex items-center gap-[28px]">
             <label className="w-[120px] text-[16px] font-normal text-black dark:text-white text-left">
               {t('language')}
             </label>
-            <input
-              type="text"
-              value={languageNames[currentLanguageDisplay] || 'English'}
-              disabled
-              className="w-[385px] h-[54px] px-5 border border-gray-300 dark:border-[#2A2A2A] rounded-xl text-base text-gray-900 dark:text-white bg-white dark:bg-[#0B0B0B]"
-            />
-            <div className="w-[72px]"></div>
+
+            {isEditing.language ? (
+              <select
+                value={formData.language}
+                onChange={(e) => handleChange('language', e.target.value)}
+                className="w-[385px] h-[54px] px-5 border border-gray-300 dark:border-[#2A2A2A] rounded-xl text-base text-gray-900 dark:text-white bg-white dark:bg-[#0B0B0B]"
+              >
+                {Object.entries(languageNames).map(([code, name]) => (
+                  <option key={code} value={code}>{name}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={languageNames[currentLanguageDisplay] || 'English'}
+                disabled
+                className="w-[385px] h-[54px] px-5 border border-gray-300 dark:border-[#2A2A2A] rounded-xl text-base text-gray-900 dark:text-white bg-white dark:bg-[#0B0B0B]"
+              />
+            )}
+
+            <button
+              onClick={() => isEditing.language ? handleSave('language') : handleEdit('language')}
+              className="w-[72px] py-1 rounded-full bg-[#2461E6] text-white text-sm"
+            >
+              {isEditing.language ? t('save') : t('edit')}
+            </button>
           </div>
 
         </div>
