@@ -1,75 +1,92 @@
-
+import api from "../../config/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../config/axios"; 
 
+// 1. Fetch all notifications
 export const fetchNotifications = createAsyncThunk(
-  "notifications/fetchAll",
-  async (params = {}, { rejectWithValue }) => {
+  "notification/fetchNotifications",
+  async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get("/notifications", { params });
+      const res = await api.get("/notifications");
       return res.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch notifications"
+      );
     }
   }
 );
 
+// 2. Fetch unread count
 export const fetchUnreadCount = createAsyncThunk(
-  "notifications/fetchUnreadCount",
+  "notification/fetchUnreadCount",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get("/notifications/unread/count");
-      return res.data.unreadCount;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch unread count"
+      );
     }
   }
 );
 
+// 3. Mark one notification as read
 export const markNotificationRead = createAsyncThunk(
-  "notifications/markRead",
+  "notification/markNotificationRead",
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.patch(`/notifications/${id}/read`);
-      return res.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to mark notification as read"
+      );
     }
   }
 );
 
+// 4. Mark all notifications as read
 export const markAllNotificationsRead = createAsyncThunk(
-  "notifications/markAllRead",
+  "notification/markAllNotificationsRead",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.patch("/notifications/mark-all-read");
-      return res.data.modifiedCount;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to mark all notifications as read"
+      );
     }
   }
 );
 
+// 5. Delete one notification
 export const deleteNotification = createAsyncThunk(
-  "notifications/delete",
+  "notification/deleteNotification",
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/notifications/${id}`);
-      return id;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      const res = await api.delete(`/notifications/${id}`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete notification"
+      );
     }
   }
 );
 
+// 6. Clear all notifications
 export const clearAllNotifications = createAsyncThunk(
-  "notifications/clearAll",
+  "notification/clearAllNotifications",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.delete("/notifications");
-      return res.data.deletedCount;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to clear all notifications"
+      );
     }
   }
 );
