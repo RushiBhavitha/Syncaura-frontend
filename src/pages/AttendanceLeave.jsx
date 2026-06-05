@@ -170,39 +170,37 @@ const AttendanceLeave = () => {
           </div>
         </div>
       </div>
-
       <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="flex items-center px-5 py-3 gap-x-5 2xl:gap-x-15 gap-y-5 mt-2 flex-wrap justify-center"
-      >
+  initial={{ opacity: 0, x: -40 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.4, ease: "easeOut" }}
+  className="flex items-center gap-6 px-4 py-3 mt-2 ml-4 max-w-[980px]"
+>
         {attendanceData.map((item, index) => (
           <AttendanceCard key={index} {...item} />
         ))}
-        <div className="relative inline-block">
+        <div className="relative inline-block ml-20">
           {/* TOP CARD */}
           <motion.div
-            onClick={() => setShowPopup((prev) => !prev)}
-            ref={triggerRef}
-            whileTap={{ scale: 0.97 }}
-            className="cursor-pointer flex flex-col items-center justify-center w-72 2xl:w-52 gap-3 shadow-[0_0_10px_0_#EDEDED] px-5 py-4 bg-[#FFFFFF] dark:bg-[#2E2F2F] dark:shadow-[0_0_10px_0_#171717] rounded-2xl"
-          >
-            <h1 className="text-[#FF0000] font-normal text-xl">
-              Mark the Presence
-            </h1>
+  onClick={() => setShowPopup((prev) => !prev)}
+  ref={triggerRef}
+  whileTap={{ scale: 0.97 }}
+  className="cursor-pointer w-[220px] h-[65px] px-4 rounded-2xl shadow-[0_0_10px_1px_#EDEDED] dark:shadow-[0_0_10px_1px_#171717] bg-[#FFFFFF] dark:bg-[#2E2F2F] flex flex-col justify-center"
+>
+  <h1 className="text-[#FF0000] font-medium text-lg">
+    Mark the Presence
+  </h1>
 
-            <div className="flex items-center justify-between w-full">
-              {["In :- ", "Out : - "].map((item, idx) => (
-                <p
-                  key={idx}
-                  className="text-[#000000] dark:text-[#F8F8F8] text-sm"
-                >
-                  {item}
-                </p>
-              ))}
-            </div>
-          </motion.div>
+  <div className="flex items-center justify-between mt-1">
+    <p className="text-[#000000] dark:text-[#F8F8F8] text-sm">
+      In: -
+    </p>
+
+    <p className="text-[#000000] dark:text-[#F8F8F8] text-sm">
+      Out: -
+    </p>
+  </div>
+</motion.div>
 
           {/* POPUP */}
           <AnimatePresence>
