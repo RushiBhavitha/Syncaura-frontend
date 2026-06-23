@@ -1,64 +1,46 @@
-# Syncaura API Integration & Architecture Documentation 🚀
+# Syncaura Frontend - API & Auth Architecture Guide
 
-This document serves as the guide for the **Syncaura Frontend** development team. It outlines the API architecture, communication flows, token management, error handling, and best practices for integrating the backend services.
+Hey team, Shivratna here. 
 
----
-
-## 📂 1. Folder Structure & Service-Layer Architecture
-
-To maintain a clean separation of concerns, the API layer is modularized across configurations, state thunks, slices, and custom services:
-
-```bash
-src/
-│
-├── config/
-│   └── axios.js            # Network Client: Axios instance with request/response interceptors
-│
-├── redux/
-│   ├── features/
-│   │   └── authThunks.js   # API Async Operations: Handles login, register, and refresh calls
-│   │
-│   ├── slices/
-│   │   └── authSlice.js    # State Management: Stores user details, tokens, and loading states
-│   └── store.js            # Redux Store: Combines all feature slices
-│
-├── services/
-│   └── errorHandler.js     # Toast Notification & Error Processing Utility
-│
-├── constant/
-│   └── validationRules.js  # Form Input Validation Schemas
-│
-└── pages/
-    ├── SignIn.jsx          # Login view and form submission handlers
-    └── SignUp.jsx          # Registration view and form submission handlers
-```
+I've set up the base API and Auth integration architecture for our frontend. Please read through this guide before starting on your tasks so we keep our code clean, consistent, and avoid merge conflicts.
 
 ---
 
-## 🌐 2. Authentication API Endpoints
+## 1. Folder Structure - Where things live
 
-The following endpoints manage the session and credentials for users on the platform:
+Here is where all our API and Auth files are located. Please make sure to follow this structure when adding new features:
+
+* `src/config/axios.js` -> The main Axios client. It has request/response interceptors for automatic token handling and session refreshes.
+* `src/redux/features/authThunks.js` -> Our API async calls (login, register, token refresh, password changes).
+* `src/redux/slices/authSlice.js` -> Where we store the user state, auth tokens, and loading states in Redux.
+* `src/services/errorHandler.js` -> Helper to process API error responses and show nicely styled toast alerts.
+* `src/constant/validationRules.js` -> All form validation rules (Email format, required fields, etc.).
+* `src/pages/SignIn.jsx` & `src/pages/SignUp.jsx` -> The main login and signup screens.
+
+---
+
+## 2. Authentication API Endpoints
+
+These are the backend endpoints we are calling. The base URL is configured in `src/config/axios.js` (pointing to `http://localhost:5000/api` for local testing):
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Authenticate user |
-| POST | `/api/auth/logout` | Logout user |
-| POST | `/api/auth/refresh` | Refresh access token |
-| GET | `/api/auth/me` | Get current user profile |
+| POST | `/api/auth/login` | Log in a user |
+| POST | `/api/auth/logout` | Log out a user |
+| POST | `/api/auth/refresh` | Refresh access token when it expires |
+| GET | `/api/auth/me` | Fetch details of the logged-in user |
 
 ---
 
-## 🔐 3. Authentication Service & Token Management
+## 3. How Token Management & Interceptors Work
 
-User authentication in Syncaura uses **JSON Web Tokens (JWT)**. The token management system separates short-lived Access Tokens from long-lived Refresh Tokens to optimize security.
+We use JWT tokens for security. There are two tokens we deal with:
+* **Access Token**: Short-lived, stored in Redux state and mirrored in `localStorage` as `accessToken`.
+* **Refresh Token**: Long-lived, stored in `localStorage` as `refreshToken`.
 
-### A. Token Lifecycle and Storage
-* **Access Token**: Placed in memory (Redux state) and mirrored in `localStorage` as `accessToken`. It expires quickly (e.g., 15 minutes) and is sent in the headers of all authenticated requests.
-* **Refresh Token**: Stored securely in `localStorage` as `refreshToken`. It has a longer expiration window (e.g., 7 days) and is used exclusively to fetch a new access token when the current one expires.
-
-### B. Network Request Interceptor
-The request interceptor automatically attaches the current `accessToken` from local storage to the request headers, so developers do not need to attach tokens manually:
+### Automatic Token Insertion (Request Interceptor)
+You don't need to manually attach the Bearer token to every API header. The Axios client automatically reads it from `localStorage` and appends it to all requests:
 
 ```javascript
 api.interceptors.request.use(
@@ -73,77 +55,38 @@ api.interceptors.request.use(
 );
 ```
 
-### C. Response Interceptor & Token Refresh Queue
-When an API request fails with a `401 Unauthorized` status (indicating an expired access token), the response interceptor automatically pauses the request queue and attempts to refresh the access token:
+### Auto-Token Refresh (Response Interceptor)
+If an API request fails with a `401 Unauthorized` (access token expired), the Axios client will automatically pause any other outgoing requests, send a call to `/auth/refresh` to get a fresh access token, and then retry the original requests. 
 
-1. **Locking & Queueing**: If multiple API calls fail simultaneously, the system locks the refreshing state (`isRefreshing = true`) and pushes subsequent failed requests into a retry queue (`failedQueue`).
-2. **Access Token Refresh**: The interceptor sends a `POST` request to `/auth/refresh` using the `refreshToken`.
-3. **Queue Processing**:
-   * **Success**: The new access token is saved in `localStorage`, the defaults are updated, and all queued failed requests are re-sent with the new token.
-   * **Failure**: If the refresh token has expired or is invalid, the interceptor clears all auth tokens, dispatches a custom `auth_session_expired` event (which logs the user out), and redirects them to the Sign In page.
+If the refresh token itself has expired, the user will be logged out automatically and redirected to the login screen.
 
 ---
 
-## 🔄 4. Request and Response Flow
+## 4. Request-to-Response Lifecycle
 
-The diagram below illustrates the communication flow during an API transaction (e.g., submitting the Login or Register form):
+Here is the quick workflow of how data travels when a form is submitted:
 
-```
-┌──────────────┐         Validate Form          ┌─────────────────┐
-│  Form Page   ├───────────────────────────────>│ ValidationRules │
-│ (Sign In/Up) │                                └────────┬────────┘
-└──────┬───────┘                                         │
-       │                                     Passed      │
-       │ Submit Payload                                  ▼
-       │ (dispatch authThunk)                   ┌─────────────────┐
-       ▼                                        │   authThunks    │
-┌──────────────┐                                └────────┬────────┘
-│  Redux Store ├─────────────────────────────────────────┼────────┐
-└──────┬───────┘                                         │        │
-       │ Update isLoading = true                         │        │
-       │                                                 ▼        │
-       │                                        ┌─────────────────┐       Attach Token
-       │                                        │  Axios Client   │<─── Request Interceptor
-       │                                        └────────┬────────┘
-       │                                                 │
-       │                                                 │ HTTP Request
-       │                                                 ▼
-       │                                        ┌─────────────────┐
-       │                                        │   Backend API   │
-       │                                        └────────┬────────┘
-       │                                                 │
-       │                                                 │ HTTP Response
-       │                                                 ▼
-       │                                        ┌─────────────────┐      Handle Expired Token
-       │                                        │  Axios Client   │───> Response Interceptor
-       │                                        └────────┬────────┘
-       │                                                 │
-       │                                       Resolved  │ Rejected
-       ▼                                                 ▼
-┌──────────────┐                                ┌─────────────────┐
-│  authSlice   │<───────────────────────────────┤  errorHandler   │
-└──────┬───────┘        Update Auth State       └────────┬────────┘
-       │          (user, token, isLoading=false)          │
-       │                                                 │ Trigger Toast
-       ▼                                                 ▼
-┌──────────────┐                                ┌─────────────────┐
-│  Form Page   │<───────────────────────────────┤  Toast Notification
-│  (Redirect)  │     Success Toast (Green)      │  Error Toast (Red)
-└──────────────┘                                └─────────────────┘
-```
+1. **User clicks Submit**: The page runs the validation rules defined in `validationRules.js`.
+2. **If validation passes**: The page dispatches an async thunk action (e.g., `loginUser(data)`).
+3. **Thunk dispatches**: This sets the Redux loading state (`isLoading = true`) and triggers the Axios client.
+4. **Axios request**: The request interceptor injects the access token and sends the payload to the Backend.
+5. **Backend responds**: 
+   * **Success**: The thunk updates the Redux slice (`authSlice`) with the new user info and tokens, and redirects the user to the correct page.
+   * **Failure**: The error is captured and passed to `errorHandler.js`.
+6. **Toast notification**: `errorHandler` reads the API error status and triggers a red/green toast popup.
 
 ---
 
-## 🔄 5. Handling API Actions, Loading, and Errors
+## 5. Coding Best Practices (Important!)
 
-### A. Calling Endpoints from Pages
-Always dispatch Redux thunks from forms to communicate with the API. Use `.unwrap()` to convert Redux actions into standard Javascript Promises so page-level `try/catch` statements can capture local outcomes:
+### A. Dispatching Thunks
+Always use `.unwrap()` when dispatching thunks from your forms so you can catch errors locally in a `try/catch` block. Example:
 
 ```javascript
 const onSubmit = async (data) => {
   try {
     const res = await dispatch(loginUser(data)).unwrap();
-    handleSuccess(`Welcome Back ${res?.user?.name || "User"}!!`);
+    handleSuccess(`Welcome Back ${res?.user?.name || "User"}!`);
     navigate("/user-dashboard");
   } catch (err) {
     handleError(err || "Login failed");
@@ -151,8 +94,8 @@ const onSubmit = async (data) => {
 };
 ```
 
-### B. Managing Loading States
-To prevent duplicate form submissions and provide visual feedback to users, always disable submit buttons and display loaders using a combination of local form state (`isSubmitting`) and global store status (`isLoading`):
+### B. Handle Loading States
+To prevent users from clicking a button multiple times and triggering duplicate API calls, always check the loading states to disable the button:
 
 ```javascript
 const { isLoading } = useSelector((state) => state.auth);
@@ -161,25 +104,21 @@ const { formState: { isSubmitting } } = useForm();
 const isPending = isSubmitting || isLoading;
 
 <button type="submit" disabled={isPending}>
-  {isPending ? <Loader className="animate-spin" /> : "Submit"}
+  {isPending ? "Loading..." : "Sign In"}
 </button>
 ```
 
-### C. Standardized Error Handling
-Errors are routed through a central `handleError` service, which parses HTTP status codes and API error response payloads:
+### C. Styling Toast Alerts
+When handling success/error popups, use the `handleSuccess` and `handleError` utilities from `errorHandler.js` instead of importing direct toast modules:
 
-* **500 Server Errors**: Displays `"Internal Server Error (500). Please try again later."`
-* **404 Resource Missing**: Displays `"Requested resource not found (404)."`
-* **403 Forbidden**: Displays `"You do not have permission to perform this action (403)."`
-* **Network Failures**: Displays `"Network error. Please check if the backend server is running."`
-* **Backend Custom Errors**: Displays the message sent directly by the backend controllers (e.g. `"User already exists"` or `"Invalid email or password"`).
+```javascript
+import { handleError, handleSuccess } from "../services/errorHandler";
 
----
+// Success:
+handleSuccess("Changes saved successfully!");
 
-## 💡 6. Best Practices for the Development Team
+// Error:
+handleError("Something went wrong, please try again.");
+```
 
-1. **Keep Secrets Secret**: Never hardcode database credentials, ports, or API endpoints in source files. Use environment variables instead.
-2. **Always Use the Axios Client**: Avoid calling plain `axios` directly in pages. Use the configured `api` wrapper import from `src/config/axios.js` to ensure request headers and automatic token refresh interceptors are applied.
-3. **Form Validations First**: Do not send requests to the server if the user inputs are invalid. Let the frontend `validationRules` catch formatting issues locally to save network bandwidth.
-4. **Never Ignore Catch Blocks**: Always wrap API thunk calls in `try/catch` blocks and hand exceptions to `handleError(err)`.
-5. **Handle User Feedback**: Every write operation (creating, editing, deleting) must display a clear success or failure Toast notification upon completion to verify the action.
+Let me know if you run into any questions or conflicts while working on your tasks!
