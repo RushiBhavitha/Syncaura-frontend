@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import heroTeam from "../../assets/hero-team.png";
 
 const Hero = () => {
+  const navigate = useNavigate();
   const scrollToFeatures = (e) => {
     e.preventDefault();
     const element = document.getElementById('features');
@@ -30,6 +32,7 @@ const Hero = () => {
             {/* Buttons - Exact Figma Layout */}
             <div className="flex justify-center md:justify-start gap-3 pt-6">
   <button
+    onClick={() => navigate('/sign-up')}
     className="px-8 md:px-5 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
     style={{ 
       backgroundColor: 'var(--accent-color)',

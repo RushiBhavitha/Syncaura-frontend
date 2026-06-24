@@ -10,9 +10,9 @@ const WorkflowSection = () => {
   };
 
   return (
-    <section className="w-full py-8 md:py-12 lg:py-20 border-t" style={{ 
+    <section className="w-full py-8 md:py-12 lg:py-20 border-t" style={{
       backgroundColor: 'var(--bg-primary)',
-      borderColor: 'var(--border-color)' 
+      borderColor: 'var(--border-color)'
     }}>
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-16">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start">
@@ -31,19 +31,19 @@ const WorkflowSection = () => {
             <p className="text-[15px] md:text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               From planning to execution, everything happens in one place. No more switching between tools. No more lost messages. Just pure productivity.
             </p>
-            
+
             {/* Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 md:flex-none md:px-6 lg:px-10 py-2.5 lg:py-3 text-sm lg:text-lg font-medium  hover:opacity-90 transition-opacity" style={{ 
+              <button className="flex-1 md:flex-none md:px-6 lg:px-10 py-2.5 lg:py-3 text-sm lg:text-lg font-medium  hover:opacity-90 transition-opacity" style={{
                 backgroundColor: 'var(--accent-color)',
                 color: 'var(--bg-primary)'
               }}>
                 Start
               </button>
-              <button 
+              <button
                 onClick={scrollToFeatures}
-                className="flex-1 md:flex-none md:px-6 lg:px-10 py-2.5 lg:py-3 border text-sm lg:text-lg font-medium  hover:opacity-70 transition-opacity" 
-                style={{ 
+                className="flex-1 md:flex-none md:px-6 lg:px-10 py-2.5 lg:py-3 border text-sm lg:text-lg font-medium  hover:opacity-70 transition-opacity"
+                style={{
                   borderColor: 'var(--accent-color)',
                   color: 'var(--accent-color)',
                   backgroundColor: 'transparent'
