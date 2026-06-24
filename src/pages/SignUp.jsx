@@ -10,7 +10,7 @@ import { registerUser } from "../redux/features/authThunks";
 import { toast } from "react-toastify";
 
 const SignUp = () => {
-  const { register, handleSubmit, watch } = useForm();
+  const { register, handleSubmit, watch, formState:{errors}, } = useForm();
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -350,6 +350,11 @@ const SignUp = () => {
                   handleFocus={handleFocus}
                   handleBlur={handleBlur}
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               {/* EMAIL */}
@@ -371,6 +376,11 @@ const SignUp = () => {
                   handleFocus={handleFocus}
                   handleBlur={handleBlur}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               {/* PASSWORD */}
@@ -389,7 +399,19 @@ const SignUp = () => {
                   passRef={passRef}
                   handleFocus={handleFocus}
                   handleBlur={handleBlur}
+                  validation={{
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                  }}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               {/* CONFIRM PASSWORD */}
@@ -408,7 +430,18 @@ const SignUp = () => {
                   passRef={conPassRef}
                   handleFocus={handleFocus}
                   handleBlur={handleBlur}
+                  validation={{
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === watch("password") ||
+                      "Passwords do not match",
+                  }}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
 
               {/* BUTTON */}
