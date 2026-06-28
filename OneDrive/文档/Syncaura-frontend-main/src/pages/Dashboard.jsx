@@ -1,0 +1,294 @@
+import Header from "../components/dashboard/Header/Header";
+import DashboardHeader from "../components/dashboard/Main/SubHeader/DashboardHeader";
+import SidebarPanel from "../components/dashboard/SideBar/SidebarPanel";
+import QuickActions from "../components/dashboard/Main/SubMain/Left/QuickActions";
+import StatsCard from "../components/dashboard/Main/SubMain/Left/StatsCard";
+import LatestEvents from "../components/dashboard/Main/SubMain/Left/LatestEvents";
+import { Ellipsis } from "lucide-react";
+import { useState } from "react";
+import Tabs from "../components/dashboard/Main/SubMain/Right/Tabs";
+import ProjectItem from "../components/dashboard/Main/SubMain/Right/ProjectItem";
+import TaskStatCard from "../components/dashboard/Main/SubMain/Left/TaskStatCard";
+import DashboardCircles from "../components/dashboard/Main/SubMain/Left/DashboardCircles";
+import SupportChatbot from "../components/SupportChatbot";
+import { useSelector } from "react-redux";
+
+const Dashboard = () => {
+  const isDark=useSelector((state)=>state.theme.isDark)
+  // const { isDark } = useThemeStore();
+  const tabs = ["Last Projects", "On Deadline", "View All Projects"];
+  const [active, setActive] = useState(0);
+  const [subHeadActive, setSubHeaderActive] = useState("Dashboard");
+  const [showUpperSideBar, setShowUpperSideBar]=useState(false)
+
+  const actions = [
+    { icon: "/images/clipboard.png", label: "Project" },
+    { icon: "/images/stages.png", label: "Stage" },
+    { icon: "/images/task.png", label: "Task" },
+    { icon: "/images/member.png", label: "Members" },
+    { icon: "/images/messages.png", label: "Messages" },
+    { icon: "/images/file.png", label: "Files" },
+  ];
+  const statsData = [
+    { topic: "Projects", label: 1 },
+    { topic: "Tasks", label: 45 },
+    { topic: "Meetings", label: 12 },
+    { topic: "Chats", label: 18 },
+  ];
+
+  const PROJECTS_LIST_ITEM = [
+    {
+      logo: "/images/LastProjects/facebook.png",
+      title: "Develop Chat Application",
+      progress: 17,
+      members: [
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+      ],
+      stages: 5,
+      deadline: "09.25.2025",
+      income: "$5000",
+      tasks: 21,
+    },
+    {
+      logo: "/images/LastProjects/M.png",
+      title: "City Advertising Campaign",
+      progress: 45,
+      members: [
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+      ],
+      stages: 8,
+      deadline: "10.12.2025",
+      income: "$7200",
+      tasks: 34,
+    },
+    {
+      logo: "/images/LastProjects/V.png",
+      title: "Web Application Development",
+      progress: 72,
+      members: [
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+      ],
+      stages: 4,
+      deadline: "11.01.2025",
+      income: "$3000",
+      tasks: 12,
+    },
+    {
+      logo: "/images/LastProjects/twitter.png",
+      title: "Twitter App",
+      progress: 72,
+      members: [
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+      ],
+      stages: 4,
+      deadline: "11.01.2025",
+      income: "$3000",
+      tasks: 12,
+    },
+    {
+      logo: "/images/LastProjects/messanger.png",
+      title: "Facebook Application",
+      progress: 72,
+      members: [
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+        "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
+      ],
+      stages: 4,
+      deadline: "11.01.2025",
+      income: "$3000",
+      tasks: 12,
+    },
+  ];
+  const TASK_STATS_LIST = [
+    {
+      title: "Task Completed",
+      value: "80%",
+      valueColor: "text-[#3361FF]",
+      icon: "/images/task/taskcompleted.png",
+      change: "+23%",
+      changeColor: "text-[#29CC39]",
+    },
+    {
+      title: "Task Delay",
+      value: "40%",
+      valueColor: "text-[#29CC39]",
+      icon: "/images/task/taskdelay.png",
+      change: "+23%",
+      changeColor: "text-[#E62E2E]",
+    },
+  ];
+
+  return (
+    <div
+      data-theme={isDark ? "dark" : "light"}
+      className=" bg-[#F7F8FA] dark:bg-[#1A1B1E] w-full px-4 xl:px-5 py-2 min-h-screen  transition-colors duration-500 "
+    >
+      <div className="  px-2 left-0 min-w-full ">
+         <Header currTab={subHeadActive} show={showUpperSideBar} setShow={setShowUpperSideBar}  />
+      </div>
+
+      <div className="grid grid-cols-[270px_1fr] xl:grid-cols-[330px_1fr] gap-1 xl:gap-3 pt-2 xl:pt-5 min-h-screen">
+        <SidebarPanel show={showUpperSideBar} />
+
+        <div className="flex flex-col  ">
+          <div className="w-full">
+            <DashboardHeader active={subHeadActive} setActive={setSubHeaderActive} />
+          </div>
+
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "Dashboard" ? "grid animate-slideIn" : "hidden"} grid-cols-5 px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <div className="col-span-3 flex flex-col gap-5 ">
+              <QuickActions actions={actions} />
+              <div className="grid grid-cols-7 xl:grid-cols-10 2xl:grid-cols-9 gap-5 2xl:gap-10">
+                <div className="col-span-2 xl:col-span-3 2xl:col-span-2  flex flex-col gap-5 ">
+                  {statsData.map(({ topic, label }, idx) => (
+                    <StatsCard topic={topic} label={label} key={idx} />
+                  ))}
+                </div>
+                <div className="col-span-5 xl:col-span-7 2xl:col-span-7   ">
+                  <LatestEvents />
+                </div>
+              </div>
+              <div className="grid grid-cols-10 xl:grid-cols-7 gap-2 xl:gap-7">
+                <div className="col-span-6 xl:col-span-4 bg-white  dark:bg-[#1A1B1E] flex flex-col pt-1  xl:pt-5 px-5 pb-0.5  xl:pb-2 gap-4 w-full items-center justify-center shadow-[0_6px_5px_1px_rgba(0,0,0,0.40),0_0px_0px_0px_rgba(0,0,0,0.15)] rounded-xl">
+
+                  <div className="flex items-center justify-between   w-full px-4 2xl:px-10">
+                    <p className="font-semibold text-xs 2xl:text-2xl text-[#000000]  dark:text-[#A7A7A7]   ">Task</p>
+                    <div className="w-full flex items-center justify-end" ><Ellipsis className="text-xl text-[#C3CAD9] " /></div>
+                  </div>
+                  <div className="w-full flex items-center justify-center ">
+                    <DashboardCircles />
+
+                  </div>
+
+
+
+
+                </div>
+                <div className="col-span-4 xl:col-span-3">
+                  <div className="flex flex-col items-center justify-center gap-2 xl:gap-5">
+                    {TASK_STATS_LIST.map((item, index) => (
+                      <TaskStatCard key={index} {...item} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-span-2 flex flex-col gap-0.5 bg-white dark:bg-[#1A1B1E] w-full rounded-xl shadow-[0_4px_5px_1px_rgba(0,0,0,0.30),0_0px_1px_0px_rgba(0,0,0,0.15)] py-4">
+              <div className="w-full flex items-center justify-center">
+                <Tabs tabs={tabs} active={active} setActive={setActive} />
+              </div>
+
+              <div className="relative w-full overflow-hidden h-full">
+                <div
+                  className={`
+    absolute inset-0 w-full
+    transition-transform transition-opacity duration-600 ease-in-out
+    ${active === 0
+                      ? "translate-x-0 opacity-100"
+                      : active > 0
+                        ? "-translate-x-full opacity-0"
+                        : "translate-x-full opacity-0"
+                    }
+  `}
+                >
+                  {PROJECTS_LIST_ITEM.map(
+                    (
+                      {
+                        logo,
+                        title,
+                        progress,
+                        members,
+                        stages,
+                        deadline,
+                        income,
+                        tasks,
+                      },
+                      idx
+                    ) => (
+                      <div className="pt-5 w-full " key={idx}>
+                        <ProjectItem
+                          logo={logo}
+                          title={title}
+                          progress={progress}
+                          members={members}
+                          stages={stages}
+                          deadline={deadline}
+                          income={income}
+                          tasks={tasks}
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {/* Tab 1 */}
+                <div
+                  className={`
+        absolute inset-0 w-full h-full flex items-center justify-center
+        transition-transform transition-opacity duration-300 ease-in-out
+        ${active === 1
+                      ? "translate-x-0 opacity-100"
+                      : active > 1
+                        ? "-translate-x-full opacity-0"
+                        : "translate-x-full opacity-0"
+                    }
+      `}
+                >
+                  <p className="text-xl text-gray-400">On DeadLine Card</p>
+                </div>
+
+                {/* Tab 2 */}
+                <div
+                  className={`
+        absolute inset-0 w-full h-full flex items-center justify-center
+        transition-transform transition-opacity duration-300 ease-in-out
+        ${active === 2
+                      ? "translate-x-0 opacity-100"
+                      : "translate-x-full opacity-0"
+                    }
+      `}
+                >
+                  <p className="text-xl text-gray-400">
+                    View All Projects Card
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "All Projects" ? "flex animate-slideIn" : "hidden"} items-center justify-center w-full h-full px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <h1>All Projects</h1>
+          </div>
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "Schedule" ? "flex animate-slideIn" : "hidden"} items-center justify-center w-full h-full px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <h1>Schedule</h1>
+          </div>
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "Meeting" ? "flex animate-slideIn" : "hidden"} items-center justify-center w-full h-full px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <h1>Meeting</h1>
+          </div>
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "Activity" ? "flex animate-slideIn" : "hidden"} items-center justify-center w-full h-full px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <h1>Activity</h1>
+          </div>
+          <div className={`mt-1 xl:mt-5 w-full ${subHeadActive === "Members" ? "flex animate-slideIn" : "hidden"} items-center justify-center w-full h-full px-3  2xl:px-10 gap-5 2xl:gap-10`}>
+            <h1>Members</h1>
+          </div>
+        </div>
+      </div>
+      <SupportChatbot/>
+    </div>
+  );
+};
+
+export default Dashboard;
